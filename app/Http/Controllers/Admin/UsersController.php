@@ -132,16 +132,17 @@ class UsersController extends Controller
      * Retrieve the list of the resource.
      *
      * @param \Illuminate\Http\Request $request
-     * @param int $show
+     * @param int $perPage
      * @param string|null $search
      * @return \Illuminate\Support\Collection
      */
-    private function getSearchRecords(Request $request, $show = 15, $search = null)
+    private function getSearchRecords(Request $request, $perPage = 15, $search = null)
     {
-        if (! empty($search)) {
-            return $this->getResourceModel()::like('name', $search)->paginate($show);
-        }
-
-        return $this->getResourceModel()::paginate($show);
+        return $this->getResourceModel()::when(! empty($search), function ($query) use ($search) {
+            $query->where(function ($query) use ($search) {
+                $query->where('name', 'like', "%$search%")
+                    ->orWhere('email', 'like', "%$search%");
+            });
+        })->paginate($perPage);
     }
 }

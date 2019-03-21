@@ -7,6 +7,9 @@
 - Backend: User Management, Simple Role, Profile
 - [Laravel Breadcrumbs](https://github.com/davejamesmiller/laravel-breadcrumbs)
 - [Easy flash notifications](https://github.com/laracasts/flash)
+- Impersonating users:
+    - Allowing admins to sign in as other users
+    - To enable this feature you have to add **IMPERSONATE=true** to the .env file and update the [App/Http/Kernel class](https://github.com/rrpadilla/laravel-adminlte-boilerplate/blob/master/app/Http/Kernel.php#L40).
 - Tests
 
 ## How to use
@@ -15,6 +18,7 @@
 - cd my-new-project
 - Copy __.env.example__ file to __.env__ and edit database credentials and APP_URL
 - Run __composer install__
+- Run __composer dump-autoload__
 - Run __php artisan key:generate__
 - Run __php artisan migrate --seed__
 - Testing: Run __phpunit__
@@ -22,6 +26,7 @@
 - Login with:
     - Admin: __admin@admin.com__ - __secret__
     - Member: __member@example.com__ - __secret__
+- Follow the [DOCUMENTATION](https://github.com/rrpadilla/laravel-adminlte-boilerplate/wiki/Adding-Resources) to see how you can add more Resources (CRUD) to your project.
 
 ## Compatibility Chart
 
@@ -31,12 +36,12 @@
 
 ## Production
 
-- composer install --optimize-autoloader
+- composer install --optimize-autoloader --no-dev
 - php artisan config:cache
 - php artisan route:cache
 - php artisan view:clear
 - Run all commands.
-    - composer install --optimize-autoloader && php artisan config:cache && php artisan route:cache && php artisan view:clear
+    - composer install --optimize-autoloader --no-dev && php artisan config:cache && php artisan route:cache && php artisan view:clear
 
 ## Production - [Configuring Trusted Proxies](https://laravel.com/docs/5.6/requests#configuring-trusted-proxies)
 Change your .env if:

@@ -19,24 +19,25 @@ trait ResourceController
         $this->authorize('viewList', $this->getResourceModel());
 
         $paginatorData = [];
-        $show = (int) $request->input('show', '');
-        $show = (is_numeric($show) && $show > 0 && $show <= 100) ? $show : 15;
-        if ($show != 15) {
-            $paginatorData['show'] = $show;
+        $perPage = (int) $request->input('per_page', '');
+        $perPage = (is_numeric($perPage) && $perPage > 0 && $perPage <= 100) ? $perPage : 15;
+        if ($perPage != 15) {
+            $paginatorData['per_page'] = $perPage;
         }
         $search = trim($request->input('search', ''));
         if (! empty($search)) {
             $paginatorData['search'] = $search;
         }
-        $records = $this->getSearchRecords($request, $show, $search);
+        $records = $this->getSearchRecords($request, $perPage, $search);
         $records->appends($paginatorData);
 
-        return view('_resources.index', $this->filterSearchViewData($request, [
+        return view($this->filterIndexView('_resources.index'), $this->filterSearchViewData($request, [
             'records' => $records,
             'search' => $search,
             'resourceAlias' => $this->getResourceAlias(),
             'resourceRoutesAlias' => $this->getResourceRoutesAlias(),
             'resourceTitle' => $this->getResourceTitle(),
+            'perPage' => $perPage,
         ]));
     }
 
@@ -50,7 +51,7 @@ trait ResourceController
         $this->authorize('create', $this->getResourceModel());
 
         $class = $this->getResourceModel();
-        return view('_resources.create', $this->filterCreateViewData([
+        return view($this->filterCreateView('_resources.create'), $this->filterCreateViewData([
             'record' => new $class(),
             'resourceAlias' => $this->getResourceAlias(),
             'resourceRoutesAlias' => $this->getResourceRoutesAlias(),
@@ -82,7 +83,7 @@ trait ResourceController
             flash()->info('Element was not inserted.');
         }
 
-        return redirect(route($this->getResourceRoutesAlias().'.index'));
+        return $this->redirectBackTo(route($this->getResourceRoutesAlias().'.index'));
     }
 
     /**
@@ -109,7 +110,7 @@ trait ResourceController
 
         $this->authorize('update', $record);
 
-        return view('_resources.edit', $this->filterEditViewData($record, [
+        return view($this->filterEditView('_resources.edit'), $this->filterEditViewData($record, [
             'record' => $record,
             'resourceAlias' => $this->getResourceAlias(),
             'resourceRoutesAlias' => $this->getResourceRoutesAlias(),
@@ -132,7 +133,7 @@ trait ResourceController
 
         $this->authorize('update', $record);
 
-        $valuesToSave = $this->getValuesToSave($request);
+        $valuesToSave = $this->getValuesToSave($request, $record);
         $request->merge($valuesToSave);
         $this->resourceValidate($request, 'update', $record);
 
@@ -144,7 +145,7 @@ trait ResourceController
             flash()->info('Element was not updated.');
         }
 
-        return redirect(route($this->getResourceRoutesAlias().'.index'));
+        return $this->redirectBackTo(route($this->getResourceRoutesAlias().'.index'));
     }
 
     /**
@@ -170,6 +171,6 @@ trait ResourceController
             flash()->info('Element was not deleted.');
         }
 
-        return redirect(route($this->getResourceRoutesAlias().'.index'));
+        return $this->redirectBackTo(route($this->getResourceRoutesAlias().'.index'));
     }
 }
